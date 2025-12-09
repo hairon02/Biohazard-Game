@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class LobbyVisualManager : MonoBehaviour
 {
@@ -20,6 +21,13 @@ public class LobbyVisualManager : MonoBehaviour
     [Header("Estado")]
     public int personajeSeleccionadoIndex = -1;
     public bool estoyListo = false;
+
+    [Header("Lista de Jugadores")]
+    public GameObject prefabItemJugador; // Arrastra aquí tu Prefab "Item_Jugador"
+    public Transform contenedorLista;    // Arrastra el objeto "Contenedor_Lista" del Canvas
+
+    // Lista para guardar los items que creamos y poder borrarlos luego
+    private List<GameObject> listaItemsActuales = new List<GameObject>();
     
     // VARIABLE DE DEBUG: Marca esto como TRUE en el inspector para probar el botón iniciar
     public bool simularSerHost = true; 
@@ -47,7 +55,17 @@ public class LobbyVisualManager : MonoBehaviour
         
         // Estado inicial
         btnListo.image.color = listoGris;
-        btnIniciar.gameObject.SetActive(false); 
+        btnIniciar.gameObject.SetActive(false);
+
+        // --- PRUEBA LOCAL DE LA LISTA ---
+        List<DatosJugadorSimple> listaPrueba = new List<DatosJugadorSimple>();
+        
+        listaPrueba.Add(new DatosJugadorSimple { nombre = "Tú (Host)", isReady = false });
+        listaPrueba.Add(new DatosJugadorSimple { nombre = "Tramcho", isReady = true });
+        listaPrueba.Add(new DatosJugadorSimple { nombre = "Hairon", isReady = false });
+
+        ActualizarListaJugadores(listaPrueba);
+        // -------------------------------
     }
 
     // --- LÓGICA DE PERSONAJES ---
@@ -141,5 +159,39 @@ public class LobbyVisualManager : MonoBehaviour
         // ---------------------------------------------------------
         Debug.Log("[RED] Desconectando...");
         UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
+    }
+
+    // --- FUNCIÓN PARA QUE TU COMPAÑERO LLAME DESDE LA RED ---
+    // Recibe una lista de objetos/clases con los datos de los jugadores
+    // (Aquí uso una clase simple de ejemplo, tu compañero usará Photon.Player)
+    public void ActualizarListaJugadores(List<DatosJugadorSimple> listaDatos)
+    {
+        // 1. Borrar la lista anterior para reconstruirla (forma bruta pero segura)
+        foreach (GameObject item in listaItemsActuales)
+        {
+            Destroy(item);
+        }
+        listaItemsActuales.Clear();
+
+        // 2. Crear un renglón nuevo por cada jugador conectado
+        foreach (var datos in listaDatos)
+        {
+            GameObject nuevoItem = Instantiate(prefabItemJugador, contenedorLista);
+            LobbyPlayerItem scriptItem = nuevoItem.GetComponent<LobbyPlayerItem>();
+            
+            // Pasamos los datos al renglón
+            scriptItem.ConfigurarJugador(datos.nombre, datos.isReady);
+            
+            // Lo guardamos para poder borrarlo después
+            listaItemsActuales.Add(nuevoItem);
+        }
+    }
+    
+    // Clase simple para probar (Tu compañero la reemplazará por PhotonPlayer)
+    [System.Serializable]
+    public class DatosJugadorSimple
+    {
+        public string nombre;
+        public bool isReady;
     }
 }
