@@ -16,6 +16,8 @@ public class MenuSystem : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        PhotonNetwork.AutomaticallySyncScene = true;
+        
         string randomNick = "Agente_" + Random.Range(1000, 9999);
         PhotonNetwork.NickName = randomNick;
         Debug.Log("Tu nombre es: " + randomNick);

@@ -26,6 +26,11 @@ public class GameManager : MonoBehaviour
 
     void SpawnearJugador()
     {
+        if (prefabsPersonajes == null || prefabsPersonajes.Length == 0)
+        {
+            Debug.LogError("¡ERROR! No asignaste los Prefabs en el Inspector del GameManager.");
+            return; // Detiene el código para que no salga el error rojo feo
+        }
         // 1. Recuperar el índice guardado en el Lobby
         int indexElegido = 0;
         if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("PjIndex"))
