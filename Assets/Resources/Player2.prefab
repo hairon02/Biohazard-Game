@@ -1264,8 +1264,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: PhotonUnityNetworking::Photon.Pun.PhotonAnimatorView
   ShowLayerWeightsInspector: 1
   ShowParameterInspector: 1
-  m_SynchronizeParameters: []
-  m_SynchronizeLayers: []
+  m_SynchronizeParameters:
+  - Type: 4
+    SynchronizeType: 1
+    Name: run
+  - Type: 4
+    SynchronizeType: 1
+    Name: jump
+  m_SynchronizeLayers:
+  - SynchronizeType: 1
+    LayerIndex: 0
 --- !u!114 &3505810066808678957
 MonoBehaviour:
   m_ObjectHideFlags: 0
