@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
     // Esta variable ahora servirá solo de respaldo por si no hay personaje asignado
     public float defaultSpeed = 10f; 
     public float gravity = -9.81f;
-    public float jumpHeight = 3f;
+|    public float jumpHeight = 3f;
 
     [Header("Ground Check")]
     public Transform groundCheck;

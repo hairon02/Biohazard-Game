@@ -25,7 +25,6 @@ public class HUDManager : MonoBehaviour
     public Gradient gradienteSalud; 
 
     [Header("Combate (Der)")]
-    public TMP_Text textoMunicion;
     public Image iconoHabilidad;
     public Image overlayCooldown; 
     public CanvasGroup vignetteDaño; 
@@ -95,16 +94,7 @@ public class HUDManager : MonoBehaviour
         }
     }
     
-    // --- MÉTODOS DE MUNICIÓN Y COOLDOWN ---
-
-    public void ActualizarMunicion(int balasActuales, int balasReserva)
-    {
-        // Actualiza el texto con formato "30 / 120"
-        if (textoMunicion != null)
-        {
-            textoMunicion.text = $"{balasActuales} / {balasReserva}";
-        }
-    }
+    // --- MÉTODOS DE COOLDOWN ---
 
     public void IniciarCooldownHabilidad(float duracion)
     {
@@ -117,26 +107,19 @@ public class HUDManager : MonoBehaviour
     // Esta función hace que la imagen oscura vaya desapareciendo como un reloj
     IEnumerator RutinaCooldown(float duracion)
     {
-        float tiempo = 0;
-        
-        // Aseguramos que empiece lleno (oscuro)
+        Debug.Log("RELOJ: Iniciando animación de " + duracion + " segundos.");
+
+        float tiempoFin = Time.time + duracion; 
         if (overlayCooldown != null) overlayCooldown.fillAmount = 1;
 
-        while (tiempo < duracion)
+        while (Time.time < tiempoFin)
         {
-            tiempo += Time.deltaTime;
-            
-            // Calculamos cuánto falta (de 1.0 a 0.0)
+            float tiempoRestante = tiempoFin - Time.time;
             if (overlayCooldown != null)
-            {
-                // Invertimos la fracción: empieza en 1 y baja a 0
-                overlayCooldown.fillAmount = 1 - (tiempo / duracion);
-            }
+                overlayCooldown.fillAmount = tiempoRestante / duracion;
             
-            yield return null; // Esperar al siguiente frame
+            yield return null; 
         }
-
-        // Al final aseguramos que esté totalmente visible (0 relleno oscuro)
         if (overlayCooldown != null) overlayCooldown.fillAmount = 0;
     }
 }
