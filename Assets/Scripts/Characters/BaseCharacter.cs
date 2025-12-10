@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections; 
+using Photon.Pun; // <--- NECESARIO
 
-public abstract class BaseCharacter : MonoBehaviour
+public abstract class BaseCharacter : MonoBehaviourPun
 {
     [Header("Identificación")]
     public string characterName;
@@ -22,13 +23,22 @@ public abstract class BaseCharacter : MonoBehaviour
     
     // Variable para saber si este personaje es EL MÍO (el que controla el jugador)
     // Cuando pongas Photon, esto será: photonView.IsMine
-    public bool esJugadorLocal = true; // <--- NUEVO: Por defecto true para pruebas offline
+    public bool esJugadorLocal => photonView.IsMine; // <--- NUEVO: Por defecto true para pruebas offline
 
     // --- Inicialización ---
     protected virtual void Start()
     {
         currentHealth = maxHealth;
         currentShield = maxShield; 
+
+        if (!photonView.IsMine)
+        {
+            // Si este no es mi personaje, desactivamos este script para no procesar lógica
+            // (Nota: Esto evita que TÚ ejecutes cooldowns o lógica en el clon de tu amigo)
+            // Sin embargo, para habilidades visuales, necesitaremos RPCs más adelante.
+            // Por ahora, esto evita conflictos.
+            return;
+        }
         
         string displayName = string.IsNullOrEmpty(characterName) ? gameObject.name : characterName;
         Debug.Log($"Inicializando: {displayName} | HP: {currentHealth} | Shield: {currentShield}");

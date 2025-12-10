@@ -18,6 +18,7 @@ public class IrinaKessler : BaseCharacter
 
     private void Update()
     {
+        if (!photonView.IsMine) return;
         if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame)
         {
             ActivateSpecialAbility();

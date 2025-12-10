@@ -171,7 +171,7 @@ public class LobbyVisualManager : MonoBehaviourPunCallbacks
     void OnClickIniciar()
     {
         PhotonNetwork.CurrentRoom.IsOpen = false; // Nadie más entra
-        PhotonNetwork.LoadLevel("Nivel_1_ControlAlfa"); // ¡Asegúrate del nombre exacto!
+        PhotonNetwork.LoadLevel("Level1"); // ¡Asegúrate del nombre exacto!
     }
 
     void OnClickSalir()

@@ -17,6 +17,7 @@ public class DrakeWolfe : BaseCharacter
 
     private void Update()
     {
+        if (!photonView.IsMine) return;
         // CORRECCIÓN: Usamos Keyboard.current en lugar de Input.GetKeyDown
         if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame && !isAbilityActive)
         {

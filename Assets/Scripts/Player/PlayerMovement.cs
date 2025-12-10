@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Photon.Pun; // <--- 1. Importar
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviourPun
 {
     [Header("Components")]
     public CharacterController characterController;
@@ -30,6 +31,15 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
+        if (!photonView.IsMine)
+        {
+            // Desactivamos el CharacterController para que no colisione raro con la sincronización
+            CharacterController cc = GetComponent<CharacterController>();
+            if(cc) cc.enabled = false; 
+            
+            this.enabled = false; // Apaga este script
+            return;
+        }
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
 

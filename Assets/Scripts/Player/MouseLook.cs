@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Photon.Pun; // <--- Importar
 
-public class MouseLook : MonoBehaviour
+public class MouseLook : MonoBehaviourPun
 {
     [Header("References")]
     public Transform cameraHolder;
@@ -15,6 +16,20 @@ public class MouseLook : MonoBehaviour
 
     void Start()
     {
+        if (!photonView.IsMine)
+        {
+            // 1. Apagar la cámara (para no ver desde sus ojos)
+            Camera cam = cameraHolder.GetComponent<Camera>(); // O GetComponentInChildren
+            if (cam != null) cam.enabled = false;
+
+            // 2. Apagar el AudioListener (para no escuchar doble)
+            AudioListener audioL = cameraHolder.GetComponent<AudioListener>(); // O GetComponentInChildren
+            if (audioL != null) audioL.enabled = false;
+
+            // 3. Apagar este script
+            this.enabled = false;
+            return;
+        }
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 

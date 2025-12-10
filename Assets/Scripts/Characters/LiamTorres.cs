@@ -16,6 +16,7 @@ public class LiamTorres : BaseCharacter
 
     private void Update()
     {
+        if (!photonView.IsMine) return;
         if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame && CanUseAbility())
         {
             ActivateSpecialAbility();
