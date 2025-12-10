@@ -3,10 +3,9 @@ using UnityEngine.InputSystem;
 
 public class LiamTorres : BaseCharacter
 {
-    [Header("Habilidad: Sobrecarga de Sistema")]
-    public float overloadRadius = 10f;
-    public float stunDuration = 5f; // Cuánto tiempo se quedan quietos
-    public LayerMask affectedLayers; 
+    [Header("Habilidad: Desmantelar Sistema")]
+    public float interactionRadius = 5f; // Rango corto (cuerpo a cuerpo técnico)
+    public LayerMask targetLayers;       // Debería ser 'MechanicalEnemy'
 
     protected override void Start()
     {
@@ -16,7 +15,6 @@ public class LiamTorres : BaseCharacter
 
     private void Update()
     {
-        if (!photonView.IsMine) return;
         if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame && CanUseAbility())
         {
             ActivateSpecialAbility();
@@ -26,45 +24,49 @@ public class LiamTorres : BaseCharacter
 
     public override void ActivateSpecialAbility()
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, overloadRadius, affectedLayers);
+        Collider[] hits = Physics.OverlapSphere(transform.position, interactionRadius, targetLayers);
         
-        if (hits.Length > 0)
-        {
-            Debug.Log($">> ¡Sobrecarga de Sistema activada! Objetos afectados: {hits.Length}");
-            
-            foreach (var hit in hits)
-            {
-                // 1. Buscamos si el objeto golpeado tiene el script de enemigo
-                BaseEnemy enemy = hit.GetComponent<BaseEnemy>();
+        bool hitSomething = false;
 
-                // 2. Si existe el script, ejecutamos el Stun
-                if (enemy != null)
-                {
-                    Debug.Log($"   -> Enviando orden de hackeo a: {hit.name}");
-                    enemy.Stun(stunDuration); // <--- ¡AQUÍ ESTÁ LA MAGIA!
-                }
+        foreach (var hit in hits)
+        {
+            BaseEnemy enemy = hit.GetComponent<BaseEnemy>();
+
+            // CONDICIÓN: Solo afecta si es mecánico
+            if (enemy != null && enemy.isMechanical)
+            {
+                Debug.Log($">> ¡OBJETIVO ELIMINADO! Desmantelando: {enemy.name}");
+                
+                // Daño infinito para asegurar destrucción inmediata
+                enemy.TakeDamage(9999f); 
+                
+                // Opcional: Si quieres que desaparezca sin animación de muerte, usa:
+                // Destroy(enemy.gameObject);
+                
+                hitSomething = true;
             }
+        }
+
+        if (!hitSomething)
+        {
+            Debug.Log(">> Habilidad fallida: No hay sistemas mecánicos válidos cerca.");
         }
         else
         {
-            Debug.Log(">> Sobrecarga fallida: No hay objetivos mecánicos cerca.");
+             DrawDebugVisuals();
         }
-
-        DrawDebugSphere();
     }
 
     protected override void ApplyPassiveEffect() { }
 
-    public float GetInteractionSpeed() { return 2.0f; }
-
-    private void DrawDebugSphere()
+    private void DrawDebugVisuals()
     {
-        Debug.DrawRay(transform.position, Vector3.up * 5, Color.cyan, 2f);
+        Debug.DrawRay(transform.position, Vector3.up * 3, Color.cyan, 1f);
     }
     
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, overloadRadius);
+        Gizmos.DrawWireSphere(transform.position, interactionRadius);
     }
 }

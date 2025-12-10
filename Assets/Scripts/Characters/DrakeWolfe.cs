@@ -1,25 +1,25 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // <--- NECESARIO PARA EL NUEVO SISTEMA
+using UnityEngine.InputSystem;
 
 public class DrakeWolfe : BaseCharacter
 {
-    [Header("Habilidad: Fuego de Supresión")]
-    public float fireRateBoost = 2.0f;
-    public float speedPenalty = 0.5f;
-    public float abilityDuration = 5.0f;
+    [Header("Habilidad: Granada Flashbang")]
+    public float stunRadius = 8f;     // Radio de explosión
+    public float stunDuration = 4f;   // Tiempo que se quedan quietos
+    public LayerMask affectedLayers;  // Capas afectadas (Enemigos)
+    
+    // Opcional: Efecto visual
+    public GameObject flashEffectPrefab; 
 
     protected override void Start()
     {
         base.Start();
         characterName = "Drake Wolfe";
-        ApplyPassiveEffect(); 
     }
 
     private void Update()
     {
-        if (!photonView.IsMine) return;
-        // CORRECCIÓN: Usamos Keyboard.current en lugar de Input.GetKeyDown
-        if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame && !isAbilityActive)
+        if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame && CanUseAbility())
         {
             ActivateSpecialAbility();
             StartCooldown();
@@ -28,39 +28,44 @@ public class DrakeWolfe : BaseCharacter
 
     public override void ActivateSpecialAbility()
     {
-        StartCoroutine(SuppressingFireRoutine());
-    }
-
-    private System.Collections.IEnumerator SuppressingFireRoutine()
-    {
-        isAbilityActive = true;
+        // 1. Detectar enemigos en radio
+        Collider[] hits = Physics.OverlapSphere(transform.position, stunRadius, affectedLayers);
         
-        float originalSpeed = movementSpeed;
-        
-        // Aplicamos penalización de velocidad
-        movementSpeed *= speedPenalty;
-        Debug.Log(">> ¡Fuego de Supresión ACTIVO! (Movimiento reducido, Cadencia aumentada)");
-
-        yield return new WaitForSeconds(abilityDuration);
-
-        // Restauramos velocidad
-        movementSpeed = originalSpeed;
-        
-        isAbilityActive = false;
-        Debug.Log(">> Fuego de Supresión finalizado.");
-    }
-
-    protected override void ApplyPassiveEffect()
-    {
-        // Se calcula en tiempo real
-    }
-
-    public float GetReloadMultiplier()
-    {
-        if (currentHealth <= (maxHealth * 0.3f))
+        if (hits.Length > 0)
         {
-            return 0.5f; 
+            Debug.Log($">> ¡Flashbang detonada! Enemigos afectados: {hits.Length}");
+            
+            foreach (var hit in hits)
+            {
+                BaseEnemy enemy = hit.GetComponent<BaseEnemy>();
+                if (enemy != null)
+                {
+                    // TRUCO: Usamos ApplySlow con factor 0 para detenerlos totalmente.
+                    // Esto funciona tanto en Zombis como en Robots.
+                    enemy.ApplySlow(0f, stunDuration); 
+                    Debug.Log($"   -> Aturdiendo a: {hit.name}");
+                }
+            }
         }
-        return 1.0f; 
+        else
+        {
+            Debug.Log(">> Flashbang fallida: No hay enemigos cerca.");
+        }
+
+        DrawDebugSphere();
+    }
+
+    protected override void ApplyPassiveEffect() { } // La pasiva de recarga sigue en el arma
+
+    private void DrawDebugSphere()
+    {
+        // Visualización rápida en Scene
+        Debug.DrawRay(transform.position, Vector3.up * 5, Color.white, 1f);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(transform.position, stunRadius);
     }
 }
