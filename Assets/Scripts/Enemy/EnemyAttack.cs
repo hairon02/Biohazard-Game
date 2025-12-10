@@ -11,96 +11,47 @@ public class EnemyAttack : MonoBehaviour
     public float hitCooldown = 1f;
 
     private float lastHitTime;
+    private BaseEnemy myStats; // Referencia a su propia vida
 
     void Start()
     {
-        // Verificar que tenemos un collider configurado como trigger
+        // Obtenemos referencia a nuestra propia salud/IA
+        myStats = GetComponent<BaseEnemy>();
+        
         Collider col = GetComponent<Collider>();
-        if (col == null)
-        {
-            Debug.LogError($"[EnemyAttack] {gameObject.name} NO TIENE COLLIDER! Agrega un collider y marca 'Is Trigger'");
-        }
-        else if (!col.isTrigger)
-        {
-            Debug.LogWarning($"[EnemyAttack] {gameObject.name} tiene collider pero NO está marcado como Trigger!");
-        }
-        else
-        {
-            Debug.Log($"[EnemyAttack] {gameObject.name} configurado correctamente con Trigger");
-        }
+        if (col == null || !col.isTrigger)
+            Debug.LogWarning($"[EnemyAttack] {gameObject.name} necesita un Collider Trigger.");
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"[EnemyAttack] Trigger detectado con: {other.gameObject.name} (Tag: {other.tag})");
+        // SEGURIDAD: Si yo (el enemigo) estoy muerto, no puedo atacar
+        if (myStats != null && myStats.health <= 0) return;
 
         // Verificar tag del jugador
-        if (!other.CompareTag("Player"))
-        {
-            Debug.Log($"[EnemyAttack] No es un jugador, ignorando...");
-            return;
-        }
+        if (!other.CompareTag("Player")) return;
 
         // Verificar cooldown
-        if (Time.time < lastHitTime + hitCooldown)
-        {
-            Debug.Log($"[EnemyAttack] En cooldown, esperando...");
-            return;
-        }
+        if (Time.time < lastHitTime + hitCooldown) return;
 
-        // Buscar componente BaseCharacter
+        // Buscar componente BaseCharacter en el JUGADOR
         BaseCharacter character = other.GetComponent<BaseCharacter>();
-        if (character == null)
+        
+        if (character != null)
         {
-            Debug.LogError($"[EnemyAttack] El jugador {other.name} NO TIENE BaseCharacter!");
-            return;
-        }
-
-        // Aplicar daño
-        Debug.Log($"[EnemyAttack] ¡APLICANDO {damage} de daño a {character.characterName}! Vida antes: {character.currentHealth}");
-        character.TakeDamage(damage, damageType);
-        Debug.Log($"[EnemyAttack] Vida después: {character.currentHealth}");
-
-        // Aplicar knockback si tiene CharacterController
-        CharacterController controller = other.GetComponent<CharacterController>();
-        if (controller != null)
-        {
-            Vector3 knockbackDir = (other.transform.position - transform.position).normalized;
-            knockbackDir.y = 0;
+            Debug.Log($"[EnemyAttack] Golpeando a {character.characterName}");
+            character.TakeDamage(damage, damageType);
             
-            // Aplicar knockback instantáneo (sin Time.deltaTime porque OnTriggerEnter solo ocurre una vez)
-            controller.Move(knockbackDir * knockbackForce);
-            Debug.Log($"[EnemyAttack] Knockback aplicado: {knockbackDir * knockbackForce}");
-        }
-        else
-        {
-            Debug.LogWarning($"[EnemyAttack] El jugador no tiene CharacterController, no se puede aplicar knockback");
-        }
+            // Aplicar knockback
+            CharacterController controller = other.GetComponent<CharacterController>();
+            if (controller != null)
+            {
+                Vector3 knockbackDir = (other.transform.position - transform.position).normalized;
+                knockbackDir.y = 0;
+                controller.Move(knockbackDir * knockbackForce);
+            }
 
-        lastHitTime = Time.time;
-    }
-
-    // Visualizar el collider en el editor
-    void OnDrawGizmos()
-    {
-        Collider col = GetComponent<Collider>();
-        if (col != null && col.isTrigger)
-        {
-            Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
-            
-            if (col is SphereCollider sphere)
-            {
-                Gizmos.DrawSphere(transform.position + sphere.center, sphere.radius * transform.localScale.x);
-            }
-            else if (col is BoxCollider box)
-            {
-                Gizmos.matrix = transform.localToWorldMatrix;
-                Gizmos.DrawCube(box.center, box.size);
-            }
-            else if (col is CapsuleCollider capsule)
-            {
-                Gizmos.DrawWireSphere(transform.position + capsule.center, capsule.radius * transform.localScale.x);
-            }
+            lastHitTime = Time.time;
         }
     }
 }

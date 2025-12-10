@@ -1,6 +1,12 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Textures/Enemies/carro.mat.meta
 guid: 94523c14632814e449290858e5c7f6a5
 NativeFormatImporter:
+========
+guid: 10fb4f74adc7b9648ad05b8e0d197858
+folderAsset: yes
+DefaultImporter:
+>>>>>>>> d0b0880ecc4ce9130ce9345b25139d047a9af509:Assets/Sounds.meta
   externalObjects: {}
   mainObjectFileID: 2100000
   userData: 
