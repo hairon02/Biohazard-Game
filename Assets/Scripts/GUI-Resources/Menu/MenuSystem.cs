@@ -1,52 +1,125 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class MenuSystem : MonoBehaviour
+public class MenuSystem : MonoBehaviourPunCallbacks
 {
     [Header("Paneles del Menú")]
-    public GameObject panelPrincipal; // Arrastra aquí el Panel del Menú Principal
-    public GameObject panelSeleccionModo; // Arrastra aquí el Panel de Selección (Jugar/Unir)
+    public GameObject panelPrincipal;
+    public GameObject panelSeleccionModo;
+    
+    [Header("UI Feedback")]
+    public Button botonJugar;
+    public Text textoEstado; // Arrastra un texto aquí para saber qué pasa
 
-    // Se llama al iniciar para asegurar que solo se ve el principal
     void Start()
     {
+        string randomNick = "Agente_" + Random.Range(1000, 9999);
+        PhotonNetwork.NickName = randomNick;
+        Debug.Log("Tu nombre es: " + randomNick);
+
         panelPrincipal.SetActive(true);
         panelSeleccionModo.SetActive(false);
+        
+        // Bloquear botón hasta conectar
+        if(botonJugar) botonJugar.interactable = false;
+        ActualizarEstado("Conectando al servidor...");
+
+        PhotonNetwork.ConnectUsingSettings();
     }
 
-    // --- Funciones para el Menú Principal ---
+    // --- CALLBACKS DE CONEXIÓN ---
 
-    public void IrASeleccionModo() // Asigna esto al botón "JUGAR" del primer menú
+    public override void OnConnectedToMaster()
     {
-        panelPrincipal.SetActive(false);
-        panelSeleccionModo.SetActive(true);
+        ActualizarEstado("Conectado. Uniéndose al Lobby General...");
+        PhotonNetwork.JoinLobby(); // Necesario para ver listas de salas después
     }
 
-    public void SalirDelJuego() // Asigna esto al botón "SALIR" del primer menú
+    public override void OnJoinedLobby()
     {
-        Debug.Log("Cerrando aplicación...");
+        ActualizarEstado("Listo para jugar.");
+        if(botonJugar) botonJugar.interactable = true;
+    }
+
+    // --- FUNCIONES DE BOTONES ---
+
+    public void IrASeleccionModo()
+    {
+        if (PhotonNetwork.IsConnectedAndReady)
+        {
+            panelPrincipal.SetActive(false);
+            panelSeleccionModo.SetActive(true);
+        }
+    }
+
+    public void CrearIncursion() // Botón CREAR SALA
+    {
+        ActualizarEstado("Creando sala...");
+        
+        // Configuración de la sala (Máximo 3 jugadores según tu GDD)
+        RoomOptions options = new RoomOptions();
+        options.MaxPlayers = 3;
+        options.IsVisible = true;
+        options.IsOpen = true;
+
+        // "Sala_" + números aleatorios para evitar nombres duplicados
+        PhotonNetwork.JoinOrCreateRoom("sala1", options, TypedLobby.Default);
+    }
+
+    public void BuscarFrecuencia() // Botón UNIRSE
+    {
+        RoomOptions options = new RoomOptions();
+        options.MaxPlayers = 3;
+        options.IsVisible = true;
+        options.IsOpen = true;
+        ActualizarEstado("Buscando señal de auxilio...");
+        PhotonNetwork.JoinOrCreateRoom("sala1", options, TypedLobby.Default);
+    }
+
+    public void SalirDelJuego()
+    {
         Application.Quit();
     }
 
-    // --- Funciones para el Menú de Selección (Segundo Menú) ---
-
-    public void CrearIncursion() // Botón "CREAR INCURSIÓN"
-    {
-        // Aquí cargaríamos la escena del Lobby o el Nivel 1
-        // Por ahora, usamos el índice +1 como tenías, o el nombre de la escena
-        Debug.Log("Creando partida...");
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby");
-    }
-
-    public void BuscarFrecuencia() // Botón "BUSCAR FRECUENCIA"
-    {
-        Debug.Log("Abriendo lista de servidores...");
-        // Aquí iría tu lógica para abrir el Server Browser
-    }
-
-    public void VolverAlMenuPrincipal() // Asigna esto al botón "SALIR" o "VOLVER" del segundo menú
+    public void VolverAlMenuPrincipal()
     {
         panelSeleccionModo.SetActive(false);
         panelPrincipal.SetActive(true);
+    }
+
+    // --- CALLBACKS DE SALAS (Aquí ocurre la magia) ---
+
+    // Este se activa cuando logras CREAR o UNIRTE a una sala exitosamente
+    public override void OnJoinedRoom()
+    {
+        Debug.Log("¡Entramos a una sala! Cargando escena del Lobby...");
+        
+        // IMPORTANTE: Usamos PhotonNetwork.LoadLevel para sincronizar,
+        // pero como es la escena de selección de personajes, SceneManager local está bien 
+        // SIEMPRE QUE ya estemos dentro de la Room.
+        
+        // Asegúrate que tu escena se llame EXACTAMENTE "Lobby" (o como la tengas)
+        PhotonNetwork.LoadLevel("Lobby"); 
+    }
+
+    public override void OnCreateRoomFailed(short returnCode, string message)
+    {
+        ActualizarEstado("Error al crear: " + message);
+    }
+
+    public override void OnJoinRandomFailed(short returnCode, string message)
+    {
+        ActualizarEstado("No hay partidas. Creando una nueva...");
+        CrearIncursion(); // Si no encuentra, crea una
+    }
+
+    // Función auxiliar para textos
+    void ActualizarEstado(string msg)
+    {
+        if (textoEstado) textoEstado.text = msg;
+        Debug.Log(msg);
     }
 }

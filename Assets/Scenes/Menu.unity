@@ -625,6 +625,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MenuSystem
   panelPrincipal: {fileID: 799562018}
   panelSeleccionModo: {fileID: 1487792320}
+  botonJugar: {fileID: 1567583984}
+  textoEstado: {fileID: 0}
 --- !u!4 &624465632
 Transform:
   m_ObjectHideFlags: 0
