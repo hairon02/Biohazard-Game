@@ -118,6 +118,26 @@ public abstract class BaseCharacter : MonoBehaviourPun
     protected virtual void Die() 
     { 
         Debug.Log($"{characterName} ha caído.");
+
+        // --- LÓGICA DE GAME OVER ---
+        // Solo mostramos la pantalla si YO soy el que murió
+        if (esJugadorLocal)
+        {
+            if (GameOverManager.Instance != null)
+            {
+                GameOverManager.Instance.MostrarGameOver();
+            }
+            else
+            {
+                Debug.LogError("¡No encuentro el GameOverManager!");
+            }
+        }
+        // ---------------------------
+
+        // Opcional: En lugar de destruir el objeto inmediatamente, 
+        // puedes solo apagar el modelo para que la cámara no se rompa.
+        // gameObject.SetActive(false); 
+        
         Destroy(gameObject); 
     }
 
