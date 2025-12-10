@@ -1096,7 +1096,7 @@ GameObject:
   - component: {fileID: 4456744860566423575}
   m_Layer: 0
   m_Name: Player2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1150,7 +1150,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   characterController: {fileID: 3455637837573732164}
   animator: {fileID: 4456744860566423575}
-  speed: 10
+  characterStats: {fileID: 0}
+  defaultSpeed: 10
   gravity: -9.81
   jumpHeight: 1
   groundCheck: {fileID: 6729083446049599163}

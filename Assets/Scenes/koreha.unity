@@ -499,9 +499,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7d7a5329daf4b247b70007e42bdbf67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleZombieAI
-  playerTarget: {fileID: 0}
-  agent: {fileID: 0}
-  enemyStatus: {fileID: 0}
 --- !u!195 &538424388
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -607,13 +604,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LiamTorres
   characterName: 
   maxHealth: 100
+  currentHealth: 0
+  maxShield: 50
+  currentShield: 0
   movementSpeed: 5
   abilityCooldown: 10
+  esJugadorLocal: 1
   overloadRadius: 10
   stunDuration: 5
   affectedLayers:
     serializedVersion: 2
     m_Bits: 64
+--- !u!95 &549543455 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 1318607845466549044, guid: 5ac92f863e6c0ef4a8a1126a86eebed3, type: 3}
+  m_PrefabInstance: {fileID: 1841843958}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1024763753
 GameObject:
   m_ObjectHideFlags: 0
@@ -1138,6 +1144,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player3
       objectReference: {fileID: 0}
+    - target: {fileID: 5757674696294149108, guid: 5ac92f863e6c0ef4a8a1126a86eebed3, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -1162,9 +1172,9 @@ GameObject:
   - component: {fileID: 2042087428}
   - component: {fileID: 2042087427}
   - component: {fileID: 2042087426}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Plane
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -1315,10 +1325,72 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1678761610}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &5768474636216081113
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 542205402755991237, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.44306
+      objectReference: {fileID: 0}
+    - target: {fileID: 542205402755991237, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 542205402755991237, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3.18812
+      objectReference: {fileID: 0}
+    - target: {fileID: 542205402755991237, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 542205402755991237, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 542205402755991237, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 542205402755991237, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 542205402755991237, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 542205402755991237, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 542205402755991237, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 922565419513011327, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
+      propertyPath: m_Name
+      value: Enemy1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2867754212331190880, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 549543455}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8800bff6c745c6c40955ef8280793edc, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 5768474636216081113}
   - {fileID: 402152602}
   - {fileID: 1024763757}
   - {fileID: 1841843958}
