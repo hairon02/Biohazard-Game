@@ -5,66 +5,81 @@ using UnityEngine.EventSystems;
 public class BotonPersonaje : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [Header("Configuración")]
-    public Image imagenPersonaje; // Arrastra la imagen del personaje aquí
+    public Image imagenPersonaje; 
     public int indicePersonaje;   // 0=Drake, 1=Irina, 2=Liam
     
     [Header("Colores")]
-    public Color colorNormal = new Color(0.5f, 0.5f, 0.5f, 1f); // Gris (Inactivo)
-    public Color colorOriginal = Color.white; // Blanco (Activo/Hover)
+    public Color colorInactivo = new Color(0.5f, 0.5f, 0.5f, 1f); // Gris
+    public Color colorHover = Color.white;                        // Blanco
+    public Color colorSeleccionado = new Color(0.5f, 1f, 0.5f, 1f); // Verde (Es mío)
+    public Color colorOcupado = new Color(0.8f, 0.2f, 0.2f, 0.5f);  // Rojo (Ocupado por otro)
 
     private LobbyVisualManager manager;
-    private bool estaSeleccionado = false;
+    
+    // Estados internos
+    private bool esMio = false;
+    private bool estaOcupadoPorOtro = false;
 
     void Start()
     {
         manager = FindFirstObjectByType<LobbyVisualManager>();
-        
-        // Estado inicial: Apagado (Gris)
-        imagenPersonaje.color = colorNormal;
+        ActualizarColor(); // Poner color inicial
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // Solo hacemos efecto hover si NO está seleccionado y NO hemos dado a "Listo"
-        if (!estaSeleccionado && !manager.estoyListo)
+        // Solo hacemos hover si está libre y no lo tengo yo seleccionado
+        if (!esMio && !estaOcupadoPorOtro && !manager.estoyListo)
         {
-            imagenPersonaje.color = colorOriginal;
+            imagenPersonaje.color = colorHover;
+            transform.localScale = Vector3.one * 1.05f; // Pequeño zoom
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        // Si no está seleccionado, vuelve a gris al salir el mouse
-        if (!estaSeleccionado)
+        if (!esMio && !estaOcupadoPorOtro)
         {
-            imagenPersonaje.color = colorNormal;
+            imagenPersonaje.color = colorInactivo;
+            transform.localScale = Vector3.one;
         }
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        // Si ya estamos listos, no hacemos nada (bloqueado)
-        if(manager.estoyListo) return;
+        // Si ya estoy listo O el personaje está ocupado por otro, no hacer nada
+        if(manager.estoyListo || estaOcupadoPorOtro) return;
 
-        // ---------------------------------------------------------
-        // TODO: PHOTON (OPCIONAL PARA TU COMPAÑERO)
-        // Aquí se podría chequear primero si el personaje está libre en la red.
-        // Por ahora, lo seleccionamos localmente y avisamos al manager.
-        // ---------------------------------------------------------
-
+        // Avisamos al manager que queremos este personaje
         manager.SeleccionarPersonaje(indicePersonaje);
     }
 
-    // --- Métodos controlados por el Manager ---
-
-    public void ConfigurarSeleccion(bool seleccionado)
+    // --- ESTA ES LA FUNCIÓN NUEVA QUE USARÁ EL MANAGER ---
+    public void ActualizarEstadoVisual(bool esMiSeleccion, bool ocupadoPorAlguienMas)
     {
-        estaSeleccionado = seleccionado;
-        
-        // Lógica visual: Seleccionado = Color Real / No seleccionado = Gris
-        imagenPersonaje.color = estaSeleccionado ? colorOriginal : colorNormal;
-        
-        // Efecto visual extra: Pequeño cambio de tamaño
-        transform.localScale = seleccionado ? Vector3.one * 1.1f : Vector3.one;
+        esMio = esMiSeleccion;
+        estaOcupadoPorOtro = ocupadoPorAlguienMas;
+
+        ActualizarColor();
+    }
+
+    void ActualizarColor()
+    {
+        if (esMio)
+        {
+            imagenPersonaje.color = colorSeleccionado;
+            transform.localScale = Vector3.one * 1.1f; // Un poco más grande si es mío
+        }
+        else if (estaOcupadoPorOtro)
+        {
+            imagenPersonaje.color = colorOcupado;
+            transform.localScale = Vector3.one; // Tamaño normal
+        }
+        else
+        {
+            // Está libre
+            imagenPersonaje.color = colorInactivo;
+            transform.localScale = Vector3.one;
+        }
     }
 }
