@@ -422,8 +422,7 @@ MonoBehaviour:
   currentShield: 50
   movementSpeed: 5
   abilityCooldown: 10
-  overloadRadius: 10
-  stunDuration: 5
-  affectedLayers:
+  interactionRadius: 5
+  targetLayers:
     serializedVersion: 2
     m_Bits: 64
