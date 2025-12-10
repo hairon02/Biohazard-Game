@@ -354,7 +354,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CinematicController
   videoPlayer: {fileID: 2060683371}
-  nextSceneName: MainMenu
+  nextSceneName: Level1
 --- !u!114 &2060683370
 MonoBehaviour:
   m_ObjectHideFlags: 0
