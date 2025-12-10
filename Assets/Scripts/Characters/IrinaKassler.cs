@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem; // <--- AGREGADO
 
 public class IrinaKessler : BaseCharacter
 {
@@ -14,7 +15,8 @@ public class IrinaKessler : BaseCharacter
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        // CORRECCIÓN: Nuevo Input System
+        if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame)
         {
             ActivateSpecialAbility();
         }
@@ -33,22 +35,16 @@ public class IrinaKessler : BaseCharacter
         }
     }
 
-    protected override void ApplyPassiveEffect()
-    {
-        // Pasiva aplicada en TakeDamage
-    }
+    protected override void ApplyPassiveEffect() { }
 
-    // Pasiva "Inmunidad Parcial"
     public override void TakeDamage(float amount, string damageType)
     {
         float finalDamage = amount;
-
         if (damageType == "Acido" || damageType == "Gas")
         {
             finalDamage = amount * 0.7f; 
             Debug.Log("Pasiva Bioingeniera: Resistencia al entorno aplicada.");
         }
-
         base.TakeDamage(finalDamage, damageType);
     }
 }

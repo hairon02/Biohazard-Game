@@ -5,8 +5,10 @@ public abstract class BaseCharacter : MonoBehaviour
 {
     [Header("Estadísticas Generales")]
     [SerializeField] protected string characterName;
-    [SerializeField] protected float maxHealth = 100f;
-    [SerializeField] protected float movementSpeed = 5f;
+    //[SerializeField] protected float maxHealth = 100f;
+    //[SerializeField] protected float movementSpeed = 5f;
+    public float movementSpeed = 5f;
+    public float maxHealth = 100f;
     
     // Variables de estado
     protected float currentHealth;

@@ -1,11 +1,11 @@
 using UnityEngine;
-using System.Collections;
+using UnityEngine.InputSystem; // <--- NECESARIO PARA EL NUEVO SISTEMA
 
 public class DrakeWolfe : BaseCharacter
 {
     [Header("Habilidad: Fuego de Supresión")]
-    public float fireRateBoost = 2.0f; // Doble cadencia
-    public float speedPenalty = 0.5f;  // 50% menos velocidad
+    public float fireRateBoost = 2.0f;
+    public float speedPenalty = 0.5f;
     public float abilityDuration = 5.0f;
 
     protected override void Start()
@@ -17,32 +17,31 @@ public class DrakeWolfe : BaseCharacter
 
     private void Update()
     {
-        // Tecla Q para activar habilidad
-        if (Input.GetKeyDown(KeyCode.Q) && !isAbilityActive)
+        // CORRECCIÓN: Usamos Keyboard.current en lugar de Input.GetKeyDown
+        if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame && !isAbilityActive)
         {
             ActivateSpecialAbility();
         }
     }
 
-    // Implementación de la Activa
     public override void ActivateSpecialAbility()
     {
         StartCoroutine(SuppressingFireRoutine());
     }
 
-    private IEnumerator SuppressingFireRoutine()
+    private System.Collections.IEnumerator SuppressingFireRoutine()
     {
         isAbilityActive = true;
         
         float originalSpeed = movementSpeed;
         
-        // Efecto: Más lento pero dispara más rápido (lógica visual/debug por ahora)
+        // Aplicamos penalización de velocidad
         movementSpeed *= speedPenalty;
         Debug.Log(">> ¡Fuego de Supresión ACTIVO! (Movimiento reducido, Cadencia aumentada)");
 
         yield return new WaitForSeconds(abilityDuration);
 
-        // Revertir
+        // Restauramos velocidad
         movementSpeed = originalSpeed;
         
         isAbilityActive = false;
@@ -51,15 +50,14 @@ public class DrakeWolfe : BaseCharacter
 
     protected override void ApplyPassiveEffect()
     {
-        // La pasiva se calcula dinámicamente en GetReloadMultiplier
+        // Se calcula en tiempo real
     }
 
-    // Pasiva "Veterano"
     public float GetReloadMultiplier()
     {
         if (currentHealth <= (maxHealth * 0.3f))
         {
-            return 0.5f; // Recarga rápida
+            return 0.5f; 
         }
         return 1.0f; 
     }
