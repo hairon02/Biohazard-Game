@@ -25,7 +25,6 @@ public class HUDManager : MonoBehaviour
     public Gradient gradienteSalud; 
 
     [Header("Combate (Der)")]
-    public TMP_Text textoMunicion;
     public Image iconoHabilidad;
     public Image overlayCooldown; 
     public CanvasGroup vignetteDaño; 
@@ -95,16 +94,7 @@ public class HUDManager : MonoBehaviour
         }
     }
     
-    // --- MÉTODOS DE MUNICIÓN Y COOLDOWN ---
-
-    public void ActualizarMunicion(int balasActuales, int balasReserva)
-    {
-        // Actualiza el texto con formato "30 / 120"
-        if (textoMunicion != null)
-        {
-            textoMunicion.text = $"{balasActuales} / {balasReserva}";
-        }
-    }
+    // --- MÉTODOS DE COOLDOWN ---
 
     public void IniciarCooldownHabilidad(float duracion)
     {
