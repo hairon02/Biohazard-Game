@@ -4,48 +4,52 @@ using System.Collections;
 public abstract class BaseCharacter : MonoBehaviour
 {
     [Header("Estadísticas Generales")]
-    [SerializeField] protected string characterName;
-    //[SerializeField] protected float maxHealth = 100f;
-    //[SerializeField] protected float movementSpeed = 5f;
-    public float movementSpeed = 5f;
+    public string characterName;
     public float maxHealth = 100f;
-    
-    // Variables de estado
+    public float movementSpeed = 5f;
+
+    [Header("Cooldowns")]
+    public float abilityCooldown = 10f; // Tiempo de espera en segundos
+    protected float nextAbilityTime = 0f; // Cuándo podré usarla de nuevo
+
     protected float currentHealth;
     protected bool isAbilityActive = false;
 
-    // Inicialización
     protected virtual void Start()
     {
         currentHealth = maxHealth;
-        Debug.Log($"Inicializando operador: {characterName}");
     }
 
-    // --- MÉTODOS CORE ---
-
-    // Sistema de daño básico
     public virtual void TakeDamage(float amount, string damageType)
     {
         currentHealth -= amount;
-        Debug.Log($"{characterName} recibió {amount} de daño. Salud restante: {currentHealth}");
+        if (currentHealth <= 0) Die();
+    }
 
-        if (currentHealth <= 0)
+    protected virtual void Die() { Debug.Log($"{characterName} ha caído."); }
+
+    // --- LÓGICA DE COOLDOWN ---
+    // Este método verifica si podemos usar la habilidad
+    public bool CanUseAbility()
+    {
+        if (Time.time >= nextAbilityTime && !isAbilityActive)
         {
-            Die();
+            return true;
+        }
+        else
+        {
+            // Opcional: Avisar al jugador
+            // Debug.Log($"Habilidad en enfriamiento. Espera {Mathf.Ceil(nextAbilityTime - Time.time)}s");
+            return false;
         }
     }
 
-    protected virtual void Die()
+    // Este método inicia el contador de espera
+    protected void StartCooldown()
     {
-        Debug.Log($"{characterName} ha sido incapacitado.");
-        // Aquí iría lógica de fin de juego o respawn
+        nextAbilityTime = Time.time + abilityCooldown;
     }
 
-    // --- MÉTODOS ABSTRACTOS ---
-    
-    // Obligamos a las clases hijas a definir su habilidad
     public abstract void ActivateSpecialAbility();
-    
-    // Obligamos a definir su pasiva
     protected abstract void ApplyPassiveEffect();
 }

@@ -1,10 +1,11 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // <--- AGREGADO
+using UnityEngine.InputSystem;
 
 public class LiamTorres : BaseCharacter
 {
     [Header("Habilidad: Sobrecarga de Sistema")]
     public float overloadRadius = 10f;
+    public float stunDuration = 5f; // Cuánto tiempo se quedan quietos
     public LayerMask affectedLayers; 
 
     protected override void Start()
@@ -15,10 +16,10 @@ public class LiamTorres : BaseCharacter
 
     private void Update()
     {
-        // CORRECCIÓN: Nuevo Input System
-        if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame)
+        if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame && CanUseAbility())
         {
             ActivateSpecialAbility();
+            StartCooldown();
         }
     }
 
@@ -29,27 +30,31 @@ public class LiamTorres : BaseCharacter
         if (hits.Length > 0)
         {
             Debug.Log($">> ¡Sobrecarga de Sistema activada! Objetos afectados: {hits.Length}");
+            
             foreach (var hit in hits)
             {
-                Debug.Log($"   -> Aturdiendo sistema de: {hit.name}");
-                // Si tienes el script EnemyDummy, descomenta esto:
-                // var enemy = hit.GetComponent<EnemyDummy>();
-                // if(enemy) enemy.Stun(3f);
+                // 1. Buscamos si el objeto golpeado tiene el script de enemigo
+                BaseEnemy enemy = hit.GetComponent<BaseEnemy>();
+
+                // 2. Si existe el script, ejecutamos el Stun
+                if (enemy != null)
+                {
+                    Debug.Log($"   -> Enviando orden de hackeo a: {hit.name}");
+                    enemy.Stun(stunDuration); // <--- ¡AQUÍ ESTÁ LA MAGIA!
+                }
             }
         }
         else
         {
             Debug.Log(">> Sobrecarga fallida: No hay objetivos mecánicos cerca.");
         }
+
         DrawDebugSphere();
     }
 
     protected override void ApplyPassiveEffect() { }
 
-    public float GetInteractionSpeed()
-    {
-        return 2.0f;
-    }
+    public float GetInteractionSpeed() { return 2.0f; }
 
     private void DrawDebugSphere()
     {

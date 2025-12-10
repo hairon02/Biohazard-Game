@@ -2,46 +2,33 @@ using UnityEngine;
 
 public class StasisGrenade : MonoBehaviour
 {
-    [Header("Configuración de Estasis")]
+    [Header("Configuración")]
     public float explosionRadius = 5f;
-    public float stasisDuration = 4f;
-    public GameObject explosionEffect; // Opcional: Partículas
+    public float slowFactor = 0.5f;
+    public float effectDuration = 4f;
 
     private void OnCollisionEnter(Collision collision)
     {
-        // Al tocar cualquier cosa, explota
         Explode();
     }
 
     void Explode()
     {
-        // 1. Efecto visual (si tienes partículas)
-        if (explosionEffect != null) 
-            Instantiate(explosionEffect, transform.position, Quaternion.identity);
-
-        // 2. Detectar enemigos en el área
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
-        
+
         foreach (Collider hit in colliders)
         {
-            // Buscamos si el objeto tiene el script "EnemyDummy" (que haremos abajo)
-            EnemyDummy enemy = hit.GetComponent<EnemyDummy>();
-            
-            if (enemy != null)
+            // CAMBIO AQUÍ: Ahora buscamos la clase padre 'BaseEnemy'
+            // Esto funcionará con Dummies, Zombis, Jefes, etc.
+            BaseEnemy target = hit.GetComponent<BaseEnemy>();
+
+            if (target != null)
             {
-                enemy.ApplySlow(0.5f, stasisDuration); // Ralentiza al 50%
-                Debug.Log($"Enemigo {hit.name} ralentizado por estasis.");
+                target.ApplySlow(slowFactor, effectDuration);
             }
         }
 
-        // 3. Destruir la granada
+        Debug.Log(">> ¡BOOM! Granada de estasis detonada.");
         Destroy(gameObject);
-    }
-    
-    // Dibujo para ver el radio en el editor
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, explosionRadius);
     }
 }

@@ -1,11 +1,14 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // <--- AGREGADO
+using UnityEngine.InputSystem;
 
 public class IrinaKessler : BaseCharacter
 {
     [Header("Habilidad: Granada de Estasis")]
     public GameObject stasisGrenadePrefab; 
-    public Transform throwPoint;           
+    public Transform throwPoint;
+    
+    // NUEVO: Variable para controlar la fuerza del brazo
+    public float throwForce = 15f; 
 
     protected override void Start()
     {
@@ -15,10 +18,10 @@ public class IrinaKessler : BaseCharacter
 
     private void Update()
     {
-        // CORRECCIÓN: Nuevo Input System
         if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame)
         {
             ActivateSpecialAbility();
+            StartCooldown();
         }
     }
 
@@ -26,7 +29,20 @@ public class IrinaKessler : BaseCharacter
     {
         if (stasisGrenadePrefab != null && throwPoint != null)
         {
-            Instantiate(stasisGrenadePrefab, throwPoint.position, throwPoint.rotation);
+            // 1. Crear la granada (guardamos la referencia en la variable 'grenade')
+            GameObject grenade = Instantiate(stasisGrenadePrefab, throwPoint.position, throwPoint.rotation);
+            
+            // 2. Obtener su física (Rigidbody)
+            Rigidbody rb = grenade.GetComponent<Rigidbody>();
+
+            // 3. Si tiene física, ¡EMPUJARLA!
+            if (rb != null)
+            {
+                // ForceMode.Impulse es ideal para golpes secos o lanzamientos instantáneos
+                // throwPoint.forward significa "hacia donde está mirando el punto de lanzamiento"
+                rb.AddForce(throwPoint.forward * throwForce, ForceMode.Impulse);
+            }
+
             Debug.Log(">> ¡Granada de Estasis lanzada!");
         }
         else
@@ -43,7 +59,6 @@ public class IrinaKessler : BaseCharacter
         if (damageType == "Acido" || damageType == "Gas")
         {
             finalDamage = amount * 0.7f; 
-            Debug.Log("Pasiva Bioingeniera: Resistencia al entorno aplicada.");
         }
         base.TakeDamage(finalDamage, damageType);
     }

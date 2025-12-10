@@ -21,6 +21,7 @@ public class DrakeWolfe : BaseCharacter
         if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame && !isAbilityActive)
         {
             ActivateSpecialAbility();
+            StartCooldown();
         }
     }
 
