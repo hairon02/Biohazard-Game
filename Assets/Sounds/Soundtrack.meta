@@ -1,8 +1,14 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Textures/Enemies/material2.mat.meta
+guid: 3d8c64bb5ee328d47b69fa4e8007b40a
+NativeFormatImporter:
+========
 guid: 79b26a581e0762e45a70907e7b45831a
 folderAsset: yes
 DefaultImporter:
+>>>>>>>> d0b0880ecc4ce9130ce9345b25139d047a9af509:Assets/Sounds/Soundtrack.meta
   externalObjects: {}
+  mainObjectFileID: 2100000
   userData: 
   assetBundleName: 
   assetBundleVariant: 

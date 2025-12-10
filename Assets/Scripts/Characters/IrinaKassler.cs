@@ -1,25 +1,31 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(AudioSource))] // Esto asegura que Irina tenga una bocina
 public class IrinaKessler : BaseCharacter
 {
     [Header("Habilidad: Granada de Estasis")]
     public GameObject stasisGrenadePrefab; 
     public Transform throwPoint;
-    
-    // NUEVO: Variable para controlar la fuerza del brazo
     public float throwForce = 15f; 
+
+    [Header("Audio")]
+    public AudioClip throwSound; // <--- Aquí arrastrarás tu granada.mp3
+
+    private AudioSource audioSource;
 
     protected override void Start()
     {
         base.Start();
         characterName = "Irina Kessler";
+        
+        // Obtenemos la referencia al componente de audio
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Update()
     {
-        if (!photonView.IsMine) return;
-        if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame)
+        if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame && CanUseAbility())
         {
             ActivateSpecialAbility();
             StartCooldown();
@@ -30,30 +36,29 @@ public class IrinaKessler : BaseCharacter
     {
         if (stasisGrenadePrefab != null && throwPoint != null)
         {
-            // 1. Crear la granada (guardamos la referencia en la variable 'grenade')
+            // 1. Crear la granada
             GameObject grenade = Instantiate(stasisGrenadePrefab, throwPoint.position, throwPoint.rotation);
             
-            // 2. Obtener su física (Rigidbody)
+            // 2. Empujarla
             Rigidbody rb = grenade.GetComponent<Rigidbody>();
-
-            // 3. Si tiene física, ¡EMPUJARLA!
             if (rb != null)
             {
-                // ForceMode.Impulse es ideal para golpes secos o lanzamientos instantáneos
-                // throwPoint.forward significa "hacia donde está mirando el punto de lanzamiento"
                 rb.AddForce(throwPoint.forward * throwForce, ForceMode.Impulse);
             }
 
-            Debug.Log(">> ¡Granada de Estasis lanzada!");
-        }
-        else
-        {
-            Debug.LogWarning("Falta asignar Prefab o ThrowPoint en Irina.");
+            // 3. REPRODUCIR SONIDO
+            if (throwSound != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(throwSound); // PlayOneShot es ideal para efectos
+            }
+
+            Debug.Log(">> ¡Granada lanzada!");
         }
     }
 
     protected override void ApplyPassiveEffect() { }
 
+    // Mantener tu lógica de pasiva intacta
     public override void TakeDamage(float amount, string damageType)
     {
         float finalDamage = amount;

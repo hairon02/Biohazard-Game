@@ -1097,6 +1097,7 @@ GameObject:
   - component: {fileID: -5761824920592913326}
   - component: {fileID: 8645414353350423893}
   - component: {fileID: 8710839480229957707}
+  - component: {fileID: 3505810066808678957}
   m_Layer: 0
   m_Name: Player2
   m_TagString: Player
@@ -1229,6 +1230,7 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 8645414353350423893}
+  - {fileID: 8710839480229957707}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -1264,6 +1266,28 @@ MonoBehaviour:
   ShowParameterInspector: 1
   m_SynchronizeParameters: []
   m_SynchronizeLayers: []
+--- !u!114 &3505810066808678957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5027533673634063582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a022fbb0a6d2e41a7b545aa47dbe8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DrakeWolfe
+  characterName: 
+  maxHealth: 100
+  currentHealth: 100
+  maxShield: 50
+  currentShield: 50
+  movementSpeed: 5
+  abilityCooldown: 10
+  fireRateBoost: 2
+  speedPenalty: 0.5
+  abilityDuration: 5
 --- !u!1 &5044324535481141125
 GameObject:
   m_ObjectHideFlags: 0
