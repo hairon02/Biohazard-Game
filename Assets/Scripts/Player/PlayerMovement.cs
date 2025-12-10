@@ -7,8 +7,13 @@ public class PlayerMovement : MonoBehaviour
     public CharacterController characterController;
     public Animator animator;
 
-    [Header("Movement")]
-    public float speed = 10f;
+    // --- INTEGRACIÓN: Referencia a TU sistema de clases ---
+    public BaseCharacter characterStats; 
+    // -----------------------------------------------------
+
+    [Header("Movement Settings")]
+    // Esta variable ahora servirá solo de respaldo por si no hay personaje asignado
+    public float defaultSpeed = 10f; 
     public float gravity = -9.81f;
     public float jumpHeight = 3f;
 
@@ -27,42 +32,29 @@ public class PlayerMovement : MonoBehaviour
     {
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
+
+        // --- INTEGRACIÓN: Buscamos si este objeto tiene una clase (Drake, Liam o Irina) ---
+        characterStats = GetComponent<BaseCharacter>();
+        
+        if (characterStats == null)
+        {
+            Debug.LogWarning("PlayerMovement: No se encontró script de Clase (Drake/Irina/Liam). Usando velocidad por defecto.");
+        }
+        else
+        {
+            Debug.Log($"Conectado con la clase: {characterStats.name}");
+        }
+        // ---------------------------------------------------------------------------------
     }
 
-    // ===============================
-    // CORRECCIÓN PRINCIPAL AQUÍ
-    // ===============================
     void Update()
     {
-        
-        // 1. Verificar si estamos tocando el suelo
         HandleGround();
-
-        // 2. Calcular y aplicar movimiento horizontal (WASD)
         HandleMovement();
         HandleJump();     
-
-        // 4. Aplicar gravedad y salto (eje Y)
         ApplyGravity();
     }
 
-    // ===============================
-    // RUN STATE (SIMPLE)
-    // ===============================
-    void HandleRunState()
-    {
-        // Corregido: Usamos 'sqrMagnitude' que es más eficiente que 'magnitude'
-        run = moveInput.sqrMagnitude > 0.01f; 
-
-        if (animator != null)
-        {
-            animator.SetBool("run", run);
-        }
-    }
-
-    // ===============================
-    // MOVEMENT
-    // ===============================
     void HandleMovement()
     {
         Vector2 input = Vector2.zero;
@@ -76,24 +68,27 @@ public class PlayerMovement : MonoBehaviour
                     (Keyboard.current.wKey.isPressed ?  1 : 0);
         }
 
-        // ✅ RUN STATE
+        // Run logic
         run = input.sqrMagnitude > 0.01f;
+        if (animator != null) animator.SetBool("run", run);
 
-        if (animator != null)
-            animator.SetBool("run", run);
-
-        // ✅ MOVEMENT
+        // Movement Direction
         Vector3 move = new Vector3(input.x, 0f, input.y);
         move = transform.TransformDirection(move);
 
-        characterController.Move(move * speed * Time.deltaTime);
+        // --- INTEGRACIÓN: LEER LA VELOCIDAD DE TU CLASE ---
+        // Si existe characterStats, usamos SU velocidad (que puede cambiar por habilidades).
+        // Si no existe, usamos defaultSpeed.
+        float currentSpeed = (characterStats != null) ? characterStats.movementSpeed : defaultSpeed;
+        // --------------------------------------------------
+
+        characterController.Move(move * currentSpeed * Time.deltaTime);
     }
 
-    // ===============================
-    // GROUND & GRAVITY
-    // ===============================
     void HandleGround()
     {
+        if (groundCheck == null) return;
+
         isGrounded = Physics.CheckSphere(
             groundCheck.position,
             sphereRadius,
@@ -104,12 +99,9 @@ public class PlayerMovement : MonoBehaviour
         if (isGrounded && velocity.y < 0)
         {
             jumpPressed = false;
-            if (animator != null)
-                animator.SetBool("jump", false);
+            if (animator != null) animator.SetBool("jump", false);
             velocity.y = -2f;
         }
-
-
     }
 
     void ApplyGravity()
@@ -118,44 +110,28 @@ public class PlayerMovement : MonoBehaviour
         characterController.Move(velocity * Time.deltaTime);
     }
 
-    // ===============================
-    // INPUT SYSTEM CALLBACKS
-    // ===============================
-    public void OnMove(InputAction.CallbackContext context)
-{
-    moveInput = context.ReadValue<Vector2>();
-    // Agrega esta línea temporalmente:
-    Debug.Log("Input recibido: " + moveInput); 
-}
-
     void HandleJump()
     {
         if (Keyboard.current == null) return;
 
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        if (Keyboard.current.spaceKey.wasPressedThisFrame && isGrounded)
         {
-            Debug.Log("SPACE PRESIONADO");
-
-            if (isGrounded)
-            {
-                Debug.Log("SALTANDO");
-                velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            }
-            else
-            {
-                Debug.Log("NO ESTA EN EL SUELO");
-            }
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             jumpPressed = true;
-            if (animator != null)
-                animator.SetBool("jump", true);
+            if (animator != null) animator.SetBool("jump", true);
         }
-
     }
-void OnDrawGizmosSelected()
-{
-    if (groundCheck == null) return;
-    Gizmos.color = Color.green;
-    Gizmos.DrawWireSphere(groundCheck.position, sphereRadius);
-}
 
+    // Callbacks del Input System (si se usan en lugar del Update directo)
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        moveInput = context.ReadValue<Vector2>();
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (groundCheck == null) return;
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(groundCheck.position, sphereRadius);
+    }
 }
