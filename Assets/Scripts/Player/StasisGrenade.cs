@@ -4,8 +4,7 @@ public class StasisGrenade : MonoBehaviour
 {
     [Header("Configuración")]
     public float explosionRadius = 5f;
-    public float slowFactor = 0.5f;
-    public float effectDuration = 4f;
+    // Ya no necesitamos slowFactor ni duration porque los vamos a matar
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -18,17 +17,26 @@ public class StasisGrenade : MonoBehaviour
 
         foreach (Collider hit in colliders)
         {
-            // CAMBIO AQUÍ: Ahora buscamos la clase padre 'BaseEnemy'
-            // Esto funcionará con Dummies, Zombis, Jefes, etc.
+            // Buscamos la clase padre BaseEnemy
             BaseEnemy target = hit.GetComponent<BaseEnemy>();
 
             if (target != null)
             {
-                target.ApplySlow(slowFactor, effectDuration);
+                // CAMBIO PRINCIPAL: En lugar de ralentizar, aplicamos daño masivo.
+                // 9999 es suficiente para matar a cualquier cosa (Insta-Kill)
+                Debug.Log($"¡BOOM! Eliminando a {hit.name}");
+                target.TakeDamage(9999f); 
             }
         }
 
-        Debug.Log(">> ¡BOOM! Granada de estasis detonada.");
-        Destroy(gameObject);
+        // Efecto visual (Opcional: Si tienes partículas de explosión, instáncialas aquí)
+        
+        Destroy(gameObject); // Destruye la granada
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red; // Cambié el color a rojo para indicar PELIGRO
+        Gizmos.DrawWireSphere(transform.position, explosionRadius);
     }
 }
