@@ -256,6 +256,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 16558f0521512b946930c2b5018c993f, type: 3}
       insertIndex: -1
       addedObject: {fileID: -980598118208565610}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 16558f0521512b946930c2b5018c993f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5900631359907270890}
   m_SourcePrefab: {fileID: 100100000, guid: 16558f0521512b946930c2b5018c993f, type: 3}
 --- !u!95 &1318607845466549044 stripped
 Animator:
@@ -356,6 +359,7 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 1074432506378202175}
+  - {fileID: -980598118208565610}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -391,3 +395,27 @@ MonoBehaviour:
   ShowParameterInspector: 1
   m_SynchronizeParameters: []
   m_SynchronizeLayers: []
+--- !u!114 &5900631359907270890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5757674696294149108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e74756431c250845a071afb75fca0cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LiamTorres
+  characterName: 
+  maxHealth: 100
+  currentHealth: 100
+  maxShield: 50
+  currentShield: 50
+  movementSpeed: 5
+  abilityCooldown: 10
+  overloadRadius: 10
+  stunDuration: 5
+  affectedLayers:
+    serializedVersion: 2
+    m_Bits: 64
