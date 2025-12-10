@@ -3,9 +3,9 @@ using UnityEngine.InputSystem;
 
 public class LiamTorres : BaseCharacter
 {
-    [Header("Habilidad: Desmantelar Sistema")]
-    public float interactionRadius = 5f; // Rango corto (cuerpo a cuerpo técnico)
-    public LayerMask targetLayers;       // Debería ser 'MechanicalEnemy'
+    [Header("Habilidad: Hackeo de Puertas")]
+    public float interactionRadius = 5f; 
+    public LayerMask targetLayers; // Asegúrate de incluir la capa de la puerta
 
     protected override void Start()
     {
@@ -24,32 +24,30 @@ public class LiamTorres : BaseCharacter
 
     public override void ActivateSpecialAbility()
     {
+        // Buscamos objetos en el radio
         Collider[] hits = Physics.OverlapSphere(transform.position, interactionRadius, targetLayers);
         
-        bool hitSomething = false;
+        bool hackedSomething = false;
 
         foreach (var hit in hits)
         {
-            BaseEnemy enemy = hit.GetComponent<BaseEnemy>();
+            // CAMBIO: Ahora buscamos el script 'HackableObject'
+            HackableObject door = hit.GetComponent<HackableObject>();
 
-            // CONDICIÓN: Solo afecta si es mecánico
-            if (enemy != null && enemy.isMechanical)
+            if (door != null)
             {
-                Debug.Log($">> ¡OBJETIVO ELIMINADO! Desmantelando: {enemy.name}");
+                Debug.Log($">> ¡ACCESO CONCEDIDO! Hackeando: {door.name}");
                 
-                // Daño infinito para asegurar destrucción inmediata
-                enemy.TakeDamage(9999f); 
+                // Ejecutamos la función de abrir/destruir
+                door.OnHack();
                 
-                // Opcional: Si quieres que desaparezca sin animación de muerte, usa:
-                // Destroy(enemy.gameObject);
-                
-                hitSomething = true;
+                hackedSomething = true;
             }
         }
 
-        if (!hitSomething)
+        if (!hackedSomething)
         {
-            Debug.Log(">> Habilidad fallida: No hay sistemas mecánicos válidos cerca.");
+            Debug.Log(">> No hay dispositivos hackeables cerca.");
         }
         else
         {
@@ -61,12 +59,12 @@ public class LiamTorres : BaseCharacter
 
     private void DrawDebugVisuals()
     {
-        Debug.DrawRay(transform.position, Vector3.up * 3, Color.cyan, 1f);
+        Debug.DrawRay(transform.position, Vector3.up * 3, Color.green, 1f);
     }
     
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.cyan;
+        Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, interactionRadius);
     }
 }
