@@ -35,7 +35,7 @@ public class MenuSystem : MonoBehaviour
         // Aquí cargaríamos la escena del Lobby o el Nivel 1
         // Por ahora, usamos el índice +1 como tenías, o el nombre de la escena
         Debug.Log("Creando partida...");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1); 
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby");
     }
 
     public void BuscarFrecuencia() // Botón "BUSCAR FRECUENCIA"
