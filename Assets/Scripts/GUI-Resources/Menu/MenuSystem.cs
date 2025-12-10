@@ -16,6 +16,8 @@ public class MenuSystem : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        PhotonNetwork.SendRate = 15; 
+        PhotonNetwork.SerializationRate = 15;
         PhotonNetwork.AutomaticallySyncScene = true;
         
         string randomNick = "Agente_" + Random.Range(1000, 9999);
