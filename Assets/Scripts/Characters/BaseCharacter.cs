@@ -115,30 +115,40 @@ public abstract class BaseCharacter : MonoBehaviourPun
     }
 
     // --- MÉTODOS COMPLEMENTARIOS ---
+    // --- MÉTODOS COMPLEMENTARIOS ---
     protected virtual void Die() 
     { 
-        Debug.Log($"{characterName} ha caído.");
-
-        // --- LÓGICA DE GAME OVER ---
-        // Solo mostramos la pantalla si YO soy el que murió
-        if (esJugadorLocal)
+        // Solo el dueño del personaje puede declarar su propia muerte a la red
+        if (photonView.IsMine)
         {
-            if (GameOverManager.Instance != null)
-            {
-                GameOverManager.Instance.MostrarGameOver();
-            }
-            else
-            {
-                Debug.LogError("¡No encuentro el GameOverManager!");
-            }
-        }
-        // ---------------------------
+            Debug.Log($"{characterName} ha caído. Notificando a todos...");
 
-        // Opcional: En lugar de destruir el objeto inmediatamente, 
-        // puedes solo apagar el modelo para que la cámara no se rompa.
-        // gameObject.SetActive(false); 
+            // LLAMADA A LA RED:
+            // "RpcTarget.All" significa: Ejecuta esto en las pantallas de TODOS (incluyéndome a mí)
+            photonView.RPC("RPC_NotificarMuerteGlobal", RpcTarget.All, characterName);
+        }
+    }
+
+    // --- NUEVA FUNCIÓN RPC ---
+    // Esta función se ejecutará automáticamente en las computadoras de los 3 jugadores
+    [PunRPC]
+    public void RPC_NotificarMuerteGlobal(string nombreDelCaido)
+    {
+        Debug.Log($"GAME OVER GLOBAL: {nombreDelCaido} ha muerto.");
+
+        // 1. Mostrar la pantalla de Game Over en ESTA computadora
+        if (GameOverManager.Instance != null)
+        {
+            GameOverManager.Instance.MostrarGameOver();
+        }
         
-        Destroy(gameObject); 
+        // 2. Opcional: Detener el tiempo para que los enemigos dejen de atacar
+        // (Asegúrate de que tu Menú de Game Over reactive el tiempo si reinicias)
+        // Time.timeScale = 0f; 
+
+        // 3. Desactivar este personaje visualmente en lugar de destruirlo inmediatamente
+        // (Si lo destruyes con Destroy(), el RPC podría cortarse o la cámara podría fallar)
+        gameObject.SetActive(false);
     }
 
     public bool CanUseAbility() 
