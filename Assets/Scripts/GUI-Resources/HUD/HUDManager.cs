@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using Photon.Pun;
 
 public class HUDManager : MonoBehaviour
 {
@@ -38,10 +39,20 @@ public class HUDManager : MonoBehaviour
         // Leer CustomProperties: int index = (int)PhotonNetwork.LocalPlayer.CustomProperties["PersonajeID"];
         // ---------------------------------------------------------
         
-        // Lectura Local (Temporal)
-        int miIndice = PlayerPrefs.GetInt("MiPersonajeSeleccionado", 0);
-        ConfigurarHUDInicial(miIndice);
+        int indexElegido = 0; // Por defecto el primero
 
+        // Verificamos si Photon tiene guardada mi elección
+        if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("PjIndex"))
+        {
+            indexElegido = (int)PhotonNetwork.LocalPlayer.CustomProperties["PjIndex"];
+        }
+        else
+        {
+            // Fallback por si probamos offline
+            Debug.LogWarning("No se encontró 'PjIndex' en la red. Usando index 0.");
+        }
+
+        ConfigurarHUDInicial(indexElegido);
         vignetteDaño.alpha = 0;
     }
 
