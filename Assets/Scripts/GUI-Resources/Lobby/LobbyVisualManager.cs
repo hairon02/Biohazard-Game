@@ -141,14 +141,21 @@ public class LobbyVisualManager : MonoBehaviour
     }
 
     // --- LÓGICA DE INICIAR / SALIR ---
-
     void OnBtnIniciarClick()
     {
+        // Guardamos el índice localmente para que la siguiente escena lo lea
+        // (Esto es temporal hasta que tu compañero ponga Photon, pero funciona perfecto ahora)
+        PlayerPrefs.SetInt("MiPersonajeSeleccionado", personajeSeleccionadoIndex);
+        PlayerPrefs.Save(); 
+
+        // ... lógica de cargar escena ...
         // ---------------------------------------------------------
         // TODO: PHOTON - TAREA PARA REDES
         // PhotonNetwork.LoadLevel("Nivel1"); // Carga sincronizada
         // ---------------------------------------------------------
         Debug.Log("[RED] HOST: Iniciando partida...");
+        Debug.Log("Guardando elección: " + personajeSeleccionadoIndex);
+        UnityEngine.SceneManagement.SceneManager.LoadScene("pruebaEddy"); // O como se llame tu escena de juego
     }
 
     void OnBtnSalirClick()
