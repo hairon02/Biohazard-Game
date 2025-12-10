@@ -66,6 +66,18 @@ public class HUDManager : MonoBehaviour
         else vignetteDaño.alpha = 0f;
     }
 
+    public void ActualizarEscudo(float actual, float maximo)
+    {
+        // Evitamos división por cero si el escudo máximo es 0
+        if (maximo <= 0) 
+        {
+            sliderEscudo.value = 0;
+            return;
+        }
+
+        sliderEscudo.value = actual / maximo;
+    }
+
     public void EfectoRecibirDaño()
     {
         StopCoroutine("FlashDaño");

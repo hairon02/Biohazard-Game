@@ -4,7 +4,7 @@ using System.Collections;
 public abstract class BaseCharacter : MonoBehaviour
 {
     [Header("Identificación")]
-    public string characterName; // <--- ESTA FALTABA
+    public string characterName;
 
     [Header("Estadísticas de Salud")]
     public float maxHealth = 100f;
@@ -20,15 +20,26 @@ public abstract class BaseCharacter : MonoBehaviour
     protected float nextAbilityTime = 0f;
     protected bool isAbilityActive = false;
     
+    // Variable para saber si este personaje es EL MÍO (el que controla el jugador)
+    // Cuando pongas Photon, esto será: photonView.IsMine
+    public bool esJugadorLocal = true; // <--- NUEVO: Por defecto true para pruebas offline
+
     // --- Inicialización ---
     protected virtual void Start()
     {
         currentHealth = maxHealth;
-        currentShield = maxShield; // El escudo empieza lleno
+        currentShield = maxShield; 
         
-        // Usamos characterName si tiene algo, si no usamos el nombre del objeto
         string displayName = string.IsNullOrEmpty(characterName) ? gameObject.name : characterName;
         Debug.Log($"Inicializando: {displayName} | HP: {currentHealth} | Shield: {currentShield}");
+
+        // <--- NUEVO: Si soy yo, actualizo mi HUD al iniciar la partida
+        if (esJugadorLocal && HUDManager.Instance != null)
+        {
+            HUDManager.Instance.ActualizarSalud(currentHealth, maxHealth);
+            HUDManager.Instance.ActualizarEscudo(currentShield, maxShield);
+            // Actualizar munición aquí también si la tuvieras en este script
+        }
     }
 
     // --- Sistema de Daño con Escudo ---
@@ -36,31 +47,43 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         float damageRemaining = amount;
 
-        // 1. Si tenemos escudo, que absorba el daño primero
+        // 1. Lógica de Escudo
         if (currentShield > 0)
         {
             if (currentShield >= damageRemaining)
             {
-                // El escudo aguanta todo el golpe
                 currentShield -= damageRemaining;
                 damageRemaining = 0;
                 Debug.Log("¡Escudo absorbió el impacto!");
             }
             else
             {
-                // El golpe rompe el escudo y sobra daño
                 damageRemaining -= currentShield; 
-                currentShield = 0; // Escudo destruido
+                currentShield = 0; 
                 Debug.Log("¡Escudo ROTO!");
             }
         }
 
-        // 2. Si todavía queda daño (o no había escudo), va a la salud
+        // 2. Lógica de Salud
         if (damageRemaining > 0)
         {
             currentHealth -= damageRemaining;
             Debug.Log($"{characterName} recibió {damageRemaining} daño real. Vida: {currentHealth}");
+
+            // <--- NUEVO: Feedback visual de daño (Vignette roja)
+            if (esJugadorLocal && HUDManager.Instance != null)
+            {
+                HUDManager.Instance.EfectoRecibirDaño();
+            }
         }
+
+        // <--- NUEVO: ¡AVISAR AL HUD QUE LOS VALORES CAMBIARON! ---
+        if (esJugadorLocal && HUDManager.Instance != null)
+        {
+            HUDManager.Instance.ActualizarSalud(currentHealth, maxHealth);
+            HUDManager.Instance.ActualizarEscudo(currentShield, maxShield);
+        }
+        // --------------------------------------------------------
 
         // 3. Chequeo de muerte
         if (currentHealth <= 0)
@@ -69,7 +92,7 @@ public abstract class BaseCharacter : MonoBehaviour
         }
     }
     
-    // --- MÉTODOS PARA QUE TU COMPAÑERO LEA LOS DATOS ---
+    // --- MÉTODOS PARA COMPAÑEROS ---
     public float GetHealthFraction()
     {
         return currentHealth / maxHealth;
@@ -96,6 +119,12 @@ public abstract class BaseCharacter : MonoBehaviour
     protected void StartCooldown() 
     { 
         nextAbilityTime = Time.time + abilityCooldown; 
+        
+        // <--- NUEVO: Avisar al HUD que empiece la animación de cooldown
+        if (esJugadorLocal && HUDManager.Instance != null)
+        {
+            HUDManager.Instance.IniciarCooldownHabilidad(abilityCooldown);
+        }
     }
 
     public float GetCooldownFraction()
@@ -105,7 +134,6 @@ public abstract class BaseCharacter : MonoBehaviour
         return Mathf.Clamp01(remainingTime / abilityCooldown);
     }
 
-    // Abstractos
     public abstract void ActivateSpecialAbility();
     protected abstract void ApplyPassiveEffect();
 }
